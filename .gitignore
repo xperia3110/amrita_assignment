@@ -3,3 +3,4 @@ uploads/
 instance/
 __pycache__/
 venv/
+*.db
