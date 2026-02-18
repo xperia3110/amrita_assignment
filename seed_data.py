@@ -1,4 +1,4 @@
-from app import app, db, Patient
+from app import app, db, Patient, AuditLog
 from risk_engine import calculate_risk
 import json
 
@@ -103,6 +103,17 @@ def seed_database():
                 risk_notes=json.dumps(risk_res['notes'])
             )
             db.session.add(patient)
+            db.session.flush() # Generate ID
+
+            # Create Initial Audit Log
+            log = AuditLog(
+                patient_id=patient.id,
+                field_changed="Creation",
+                old_value="N/A",
+                new_value="Patient Created",
+                risk_change=f"Started as {risk_res['label']}"
+            )
+            db.session.add(log)
         
         db.session.commit()
         print(f"Successfully added {len(samples)} sample patients.")
