@@ -122,6 +122,8 @@ python3 tests/test_suite.py
 
 The test suite automatically configures the environment (in-memory DB) and avoids polluting your real database.
 
+To test the pdf parsing, a sample pdf is attached download and save it in your local storage and upload it to test.
+
 ---
 
 ## Limitations
