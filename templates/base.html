@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amrita Risk Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{{ url_for('dashboard') }}" class="text-xl font-bold flex items-center gap-2">
+                <i class="fa-solid fa-heart-pulse"></i> Amrita Risk Monitor
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="{{ url_for('dashboard') }}" class="hover:text-blue-200 transition">Dashboard</a>
+                <a href="{{ url_for('patient_list') }}" class="hover:text-blue-200 transition">Patient List</a>
+                <a href="{{ url_for('add_patient') }}"
+                    class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg transition shadow-md">
+                    + New Patient
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div
+            class="mb-4 p-4 rounded-lg {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+
+</html>

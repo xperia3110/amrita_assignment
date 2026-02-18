@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-lg overflow-hidden min-h-screen">
+    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h2 class="text-xl font-bold text-slate-800">Patient Registry</h2>
+
+        <!-- Tabs -->
+        <div class="flex space-x-1 bg-slate-200 p-1 rounded-lg">
+            <button onclick="filterList('ALL')"
+                class="px-4 py-1.5 rounded-md text-sm font-bold transition bg-white shadow-sm text-slate-800 tab-btn"
+                data-tab="ALL">All</button>
+            <button onclick="filterList('HIGH')"
+                class="px-4 py-1.5 rounded-md text-sm font-bold transition text-slate-600 hover:bg-white/50 tab-btn"
+                data-tab="HIGH">High Risk</button>
+            <button onclick="filterList('MEDIUM')"
+                class="px-4 py-1.5 rounded-md text-sm font-bold transition text-slate-600 hover:bg-white/50 tab-btn"
+                data-tab="MEDIUM">Medium</button>
+            <button onclick="filterList('LOW')"
+                class="px-4 py-1.5 rounded-md text-sm font-bold transition text-slate-600 hover:bg-white/50 tab-btn"
+                data-tab="LOW">Low</button>
+        </div>
+    </div>
+
+    <table class="w-full text-left border-collapse">
+        <thead class="bg-slate-100 text-slate-500 text-xs uppercase font-semibold">
+            <tr>
+                <th class="px-6 py-4 border-b">ID</th>
+                <th class="px-6 py-4 border-b">Name</th>
+                <th class="px-6 py-4 border-b">Age / Gender</th>
+                <th class="px-6 py-4 border-b">Admission Date</th>
+                <th class="px-6 py-4 border-b">Risk Level</th>
+                <th class="px-6 py-4 border-b text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100" id="patientTableBody">
+            {% for p in patients %}
+            <tr class="hover:bg-blue-50/50 transition patient-row" data-risk="{{ p.risk_label }}">
+                <td class="px-6 py-4 font-mono text-slate-500">#{{ p.id }}</td>
+                <td class="px-6 py-4 font-medium text-slate-900">{{ p.name }}</td>
+                <td class="px-6 py-4 text-slate-600">{{ p.age }} / {{ p.gender }}</td>
+                <td class="px-6 py-4 text-slate-500 text-sm">{{ p.admission_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold
+                        {% if p.risk_label == 'HIGH' %} bg-red-100 text-red-700
+                        {% elif p.risk_label == 'MEDIUM' %} bg-yellow-100 text-yellow-700
+                        {% else %} bg-green-100 text-green-700 {% endif %}">
+                        {{ p.risk_label }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-right space-x-3">
+                    <button data-patient='{{ p.to_dict() | tojson | forceescape }}'
+                        onclick="openQuickView(JSON.parse(this.dataset.patient))"
+                        class="text-slate-500 hover:text-blue-600 font-medium text-sm transition">
+                        <i class="fa-regular fa-eye"></i> Quick View
+                    </button>
+                    <a href="{{ url_for('patient_details', id=p.id) }}"
+                        class="text-blue-600 hover:text-blue-800 font-bold text-sm transition">
+                        Details &rarr;
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Quick View Modal -->
+<div id="quickViewModal"
+    class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform scale-95 opacity-0 transition-all duration-300"
+        id="modalContent">
+        <div class="bg-blue-900 px-6 py-4 rounded-t-xl flex justify-between items-center">
+            <h3 class="text-white font-bold" id="modalTitle">Patient Details</h3>
+            <button onclick="closeModal()" class="text-blue-200 hover:text-white transition"><i
+                    class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Patient ID</p>
+                    <p class="font-mono font-bold text-lg" id="modalId">#--</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-slate-500">Risk Level</p>
+                    <span id="modalRisk" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100">--</span>
+                </div>
+            </div>
+
+            <hr class="border-slate-100">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-50 p-3 rounded-lg">
+                    <p class="text-xs text-slate-500 font-bold uppercase">Heart Rate</p>
+                    <p class="text-xl font-bold text-slate-800"><span id="modalHR">--</span> <span
+                            class="text-xs font-normal text-slate-400">bpm</span></p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg">
+                    <p class="text-xs text-slate-500 font-bold uppercase">Blood Pressure</p>
+                    <p class="text-xl font-bold text-slate-800"><span id="modalBP">--/--</span> <span
+                            class="text-xs font-normal text-slate-400">mmHg</span></p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg">
+                    <p class="text-xs text-slate-500 font-bold uppercase">SpO2</p>
+                    <p class="text-xl font-bold text-slate-800"><span id="modalSpO2">--</span>%</p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg">
+                    <p class="text-xs text-slate-500 font-bold uppercase">Temp</p>
+                    <p class="text-xl font-bold text-slate-800"><span id="modalTemp">--</span>°C</p>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <a href="#" id="modalLink"
+                    class="block w-full text-center bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition">Go
+                    to Full Record</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterList(type) {
+        const rows = document.querySelectorAll('.patient-row');
+        const buttons = document.querySelectorAll('.tab-btn');
+
+        // Update Buttons
+        buttons.forEach(btn => {
+            if (btn.dataset.tab === type) {
+                btn.classList.remove('bg-transparent', 'text-slate-600', 'hover:bg-white/50');
+                btn.classList.add('bg-white', 'shadow-sm', 'text-slate-800');
+            } else {
+                btn.classList.add('bg-transparent', 'text-slate-600', 'hover:bg-white/50');
+                btn.classList.remove('bg-white', 'shadow-sm', 'text-slate-800');
+            }
+        });
+
+        // Filter Rows
+        rows.forEach(row => {
+            if (type === 'ALL' || row.dataset.risk === type) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Modal Logic
+    const modal = document.getElementById('quickViewModal');
+    const modalContent = document.getElementById('modalContent');
+
+    function openQuickView(data) {
+        document.getElementById('modalTitle').innerText = data.name;
+        document.getElementById('modalId').innerText = "#" + data.id;
+
+        const riskBadge = document.getElementById('modalRisk');
+        riskBadge.innerText = data.risk_label;
+        riskBadge.className = `px-3 py-1 rounded-full text-xs font-bold ${data.risk_label === 'HIGH' ? 'bg-red-100 text-red-700' :
+            data.risk_label === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
+            }`;
+
+        document.getElementById('modalHR').innerText = data.heart_rate;
+        // Handle undefined diastolic for old records
+        const diastolic = data.diastolic_bp ? data.diastolic_bp : '--';
+        document.getElementById('modalBP').innerText = `${data.systolic_bp}/${diastolic}`;
+        document.getElementById('modalSpO2').innerText = data.spo2;
+        document.getElementById('modalTemp').innerText = data.temperature;
+
+        document.getElementById('modalLink').href = `/patient/${data.id}`;
+
+        modal.classList.remove('hidden');
+        // Small delay to allow display:block to apply before opacity transition
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeModal() {
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    // Close on click outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+</script>
+{% endblock %}

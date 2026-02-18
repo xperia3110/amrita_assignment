@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-slate-800 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-white font-bold text-lg">Patient Record: {{ patient.name }}</h2>
+                <span class="px-3 py-1 rounded-full text-xs font-bold
+                    {% if patient.risk_label == 'HIGH' %} bg-red-500 text-white
+                    {% elif patient.risk_label == 'MEDIUM' %} bg-yellow-500 text-black
+                    {% else %} bg-green-500 text-white {% endif %}">
+                    RISK: {{ patient.risk_label }}
+                </span>
+            </div>
+
+            <div class="flex justify-end mb-4 px-6 pt-4">
+                <button type="button" id="editBtn" onclick="toggleEdit()"
+                    class="text-blue-600 hover:text-blue-800 font-bold text-sm">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Vitals
+                </button>
+            </div>
+
+
+
+            <form action="{{ url_for('update_patient', id=patient.id) }}" method="POST" class="p-6 space-y-4">
+
+                <h3 class="text-sm font-bold text-slate-400 uppercase border-b pb-2">Update Vitals</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Heart Rate</label>
+                        <input type="number" name="heart_rate" value="{{ patient.heart_rate }}"
+                            class="w-full border rounded p-2 bg-slate-50" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Systolic BP</label>
+                        <input type="number" name="systolic_bp" value="{{ patient.systolic_bp }}"
+                            class="w-full border rounded p-2 bg-slate-50" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Diastolic BP</label>
+                        <input type="number" name="diastolic_bp" value="{{ patient.diastolic_bp }}"
+                            class="w-full border rounded p-2 bg-slate-50" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">SpO2 (%)</label>
+                        <input type="number" name="spo2" value="{{ patient.spo2 }}"
+                            class="w-full border rounded p-2 bg-slate-50" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Temp (°C)</label>
+                        <input type="number" step="0.1" name="temperature" value="{{ patient.temperature }}"
+                            class="w-full border rounded p-2 bg-slate-50" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Resp Rate (/min)</label>
+                        <input type="number" name="respiratory_rate" value="{{ patient.respiratory_rate }}"
+                            class="w-full border rounded p-2 bg-slate-50" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">ER Visits (30d)</label>
+                        <input type="number" name="er_visits" value="{{ patient.er_visits }}"
+                            class="w-full border rounded p-2 bg-slate-50" readonly>
+                    </div>
+                </div>
+
+                <div class="pt-4 hidden" id="updateBtnContainer">
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-md">
+                        Update & Recalculate Risk
+                    </button>
+                    <button type="button" onclick="cancelEdit()"
+                        class="w-full mt-2 text-slate-500 hover:text-slate-700 font-bold py-2 rounded-lg transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+
+            <div class="px-6 pb-6 pt-2">
+                <hr class="border-slate-100 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-700 mb-2">Clinical History</h3>
+                        {% if patient.history_list %}
+                        <div class="flex flex-wrap gap-2">
+                            {% for item in patient.history_list %}
+                            <span
+                                class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-100">
+                                {{ item }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-sm text-slate-400 italic">No history recorded.</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-700 mb-2">Lab Indicators</h3>
+                        {% if patient.lab_issues_list %}
+                        <div class="flex flex-wrap gap-2">
+                            {% for item in patient.lab_issues_list %}
+                            <span
+                                class="px-3 py-1 bg-red-50 text-red-700 rounded-lg text-sm font-medium border border-red-100">
+                                {{ item }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-sm text-slate-400 italic">No lab issues recorded.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if patient.risk_notes_list %}
+            <div class="px-6 pb-6 border-t border-slate-100 pt-4">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Risk Factors Identified</h3>
+                <ul class="space-y-1">
+                    {% for note in patient.risk_notes_list %}
+                    <li class="flex items-start gap-2 text-sm text-slate-700">
+                        <span class="text-red-500 flex-shrink-0 mt-0.5"><i
+                                class="fa-solid fa-circle-exclamation text-[10px]"></i></span>
+                        <span>{{ note }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function toggleEdit() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            const updateBtn = document.getElementById('updateBtnContainer');
+            const editBtn = document.getElementById('editBtn');
+
+            inputs.forEach(input => {
+                input.readOnly = false;
+                input.classList.remove('bg-slate-50');
+                input.classList.add('bg-white', 'focus:ring-2', 'focus:ring-blue-500', 'outline-none');
+            });
+
+            updateBtn.classList.remove('hidden');
+            editBtn.classList.add('hidden');
+        }
+
+        function cancelEdit() {
+            window.location.reload();
+        }
+    </script>
+
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-lg h-full overflow-hidden flex flex-col">
+            <div class="bg-slate-100 px-6 py-4 border-b">
+                <h3 class="font-bold text-slate-700">Audit History</h3>
+                <p class="text-xs text-slate-500">Track all changes to this record</p>
+            </div>
+
+            <div class="overflow-y-auto p-4 space-y-4 max-h-[600px]">
+                {% if logs %}
+                {% for log in logs %}
+                <div class="relative pl-4 border-l-2 border-slate-200">
+                    <div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-slate-400"></div>
+
+                    <p class="text-xs text-slate-400 mb-1">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+
+                    {% if log.field_changed == 'Creation' %}
+                    <p class="text-sm font-bold text-green-600">Patient Admitted</p>
+                    <p class="text-xs text-slate-600">Initial Risk: {{ log.risk_change }}</p>
+                    {% else %}
+                    <p class="text-sm font-bold text-slate-700">Changed: {{ field_labels.get(log.field_changed,
+                        log.field_changed) | title }}</p>
+                    <div class="text-xs grid grid-cols-2 gap-2 mt-1 bg-slate-50 p-2 rounded">
+                        <div class="text-red-500 line-through">{{ log.old_value }}</div>
+                        <div class="text-green-600 font-bold">{{ log.new_value }}</div>
+                    </div>
+                    {% if "->" in log.risk_change and "No Change" not in log.risk_change %}
+                    <div class="mt-1 inline-block px-2 py-0.5 bg-red-100 text-red-700 text-[10px] rounded font-bold">
+                        Risk Escalation: {{ log.risk_change }}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-center text-slate-400 py-4">No changes recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

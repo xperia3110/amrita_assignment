@@ -104,6 +104,8 @@ def calculate_risk(data):
     unrecognized_conditions = []
 
     for cond in history:
+        if not cond or not cond.strip():
+            continue
         matched = False
         for valid in valid_conditions:
             if valid.lower() in cond.lower():
@@ -124,9 +126,23 @@ def calculate_risk(data):
         score += 2
         notes.append("ER Visits >3")
 
+    # Lab Indicators
+    valid_labs = ["Elevated WBC", "High Creatinine", "High CRP"]
+    
     for lab in lab_issues:
-        score += 1
-        notes.append(f"Lab: {lab}")
+        if not lab or not lab.strip():
+            continue
+            
+        matched = False
+        for valid in valid_labs:
+            if valid.lower() in lab.lower():
+                score += 1
+                notes.append(f"Lab: {lab}")
+                matched = True
+                break
+        
+        if not matched:
+            notes.append(f"WARNING: Unrecognized lab '{lab}'")
 
     # FINAL CLASSIFICATION
   
