@@ -1,0 +1,6 @@
+Flask
+Flask-SQLAlchemy
+pdfplumber
+reportlab
+requests
+pytest

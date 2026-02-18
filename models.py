@@ -28,6 +28,9 @@ class Patient(db.Model):
     risk_score = db.Column(db.Integer, default=0)
     risk_label = db.Column(db.String(20), default="LOW") # LOW, MEDIUM, HIGH
     risk_notes = db.Column(db.Text, default="")
+    
+    # Clinical Notes
+    notes = db.Column(db.Text, default="")
 
     # Relationship to Logs
     logs = db.relationship('AuditLog', backref='patient', lazy=True, cascade="all, delete-orphan")
@@ -72,7 +75,10 @@ class Patient(db.Model):
             'lab_issues': self.lab_issues_list,
             'er_visits': self.er_visits,
             'risk_score': self.risk_score,
-            'risk_label': self.risk_label
+            'er_visits': self.er_visits,
+            'risk_score': self.risk_score,
+            'risk_label': self.risk_label,
+            'notes': self.notes
         }
 
 class AuditLog(db.Model):

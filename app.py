@@ -6,7 +6,7 @@ import os
 import json
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///risk_system.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', 'sqlite:///risk_system.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.secret_key = 'amrita_health_secret' # Needed for flash messages
@@ -97,6 +97,7 @@ def add_patient():
             er_visits=data['er_visits'],
             history=json.dumps(data['history']),
             lab_issues=json.dumps(data['lab_issues']),
+            notes=request.form.get('notes', ''),
             # System Assigned Risk
             risk_score=risk_result['score'],
             risk_label=risk_result['label'],
@@ -183,6 +184,9 @@ def update_patient(id):
     check_change('temperature', float(request.form['temperature']))
     check_change('respiratory_rate', int(request.form['respiratory_rate']))
     check_change('er_visits', int(request.form['er_visits']))
+    # Text notes
+    if 'notes' in request.form:
+        check_change('notes', request.form['notes'])
     # ... add other fields as needed
 
     # 2. Recalculate Risk (Automatic) [cite: 96]
