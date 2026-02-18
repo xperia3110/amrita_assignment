@@ -1,4 +1,4 @@
-# Amrita Risk Monitor
+# Patient Risk Monitor
 
 A Patient Risk Monitoring System designed to capture patient data, calculate clinical risk using a deterministic rule-based scoring engine, and maintain a complete audit history.
 
