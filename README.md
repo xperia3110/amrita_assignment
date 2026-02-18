@@ -103,6 +103,12 @@ The application uses **SQLite**. The database file `risk_system.db` will be auto
     Open your browser and navigate to:
     [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
+3.  **(Optional) Load Sample Data:**
+    To populate the dashboard with realistic test patients:
+    ```bash
+    python3 seed_data.py
+    ```
+
 ---
 
 ## Testing
