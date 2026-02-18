@@ -86,7 +86,6 @@
 </div>
 
 <script>
-    // Data Preparation - Defined outside chart config to fix IDE syntax highlighting
     const donutData = JSON.parse('{{ [risk_counts["HIGH"], risk_counts["MEDIUM"], risk_counts["LOW"]] | tojson | safe }}');
     const trendDates = JSON.parse('{{ trend_dates | tojson | safe }}');
     const trendData = JSON.parse('{{ trend_data | tojson | safe }}');
