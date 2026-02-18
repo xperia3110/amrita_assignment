@@ -35,6 +35,25 @@ A comprehensive **Patient Risk Monitoring System** designed to streamline clinic
 
 ---
 
+
+## Project Structure
+
+```
+├── app.py              # Main Flask Application
+├── risk_engine.py      # Deterministic Risk Scoring Logic
+├── service_pdf.py      # PDF Parsing Service
+├── models.py           # Database Models (Patient, AuditLog)
+├── requirements.txt    # Python Dependencies
+├── templates/          # HTML Templates
+│   ├── base.html
+│   ├── dashboard.html
+│   ├── patient_list.html
+│   ├── patient_details.html
+│   └── add_patient.html
+├── instance/           # Database Storage (risk_system.db)
+└── tests/              # Unit Tests
+```
+
 ## Setup Instructions
 
 ### Prerequisites
@@ -78,11 +97,22 @@ The application uses **SQLite**. The database file `risk_system.db` will be auto
 
 ---
 
+## Testing
+
+To run the comprehensive test suite (Risk Engine, PDF Parsing, Web Routes):
+
+```bash
+python3 tests/test_suite.py
+```
+
+The test suite automatically configures the environment (in-memory DB) and avoids polluting your real database.
+
+---
 
 ## Limitations
 *   **Mobile App:** This project is implemented as a Responsive Web Application only.
 
 ---
 
-##  License
+## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
