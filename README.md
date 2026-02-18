@@ -52,6 +52,7 @@ A comprehensive **Patient Risk Monitoring System** designed to streamline clinic
 ├── service_pdf.py      # PDF Parsing Service
 ├── models.py           # Database Models (Patient, AuditLog)
 ├── requirements.txt    # Python Dependencies
+├── seed_data.py        # Seed data for population
 ├── templates/          # HTML Templates
 │   ├── base.html
 │   ├── dashboard.html
