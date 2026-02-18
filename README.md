@@ -35,6 +35,14 @@ A comprehensive **Patient Risk Monitoring System** designed to streamline clinic
 
 ---
 
+## Tech Stack
+*   **Backend:** Python 3.13, Flask
+*   **Database:** SQLite, SQLAlchemy
+*   **Frontend:** HTML5, Tailwind CSS, JavaScript, Chart.js
+*   **PDF Processing:** pdfplumber
+*   **Testing:** unittest
+
+---
 
 ## Project Structure
 
