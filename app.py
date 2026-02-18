@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', 'sqlite:///risk_system.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.secret_key = 'amrita_health_secret' # Needed for flash messages
+app.secret_key = 'amrita_health_secret'
 
 # Ensure upload directory exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -44,7 +44,6 @@ def dashboard():
     for date_str in dates:
         count = 0
         target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        # Inefficient loop for small dataset is fine
         for p in patients:
             if p.admission_date.date() == target_date and p.risk_label == 'HIGH':
                 count += 1
@@ -187,10 +186,8 @@ def update_patient(id):
     # Text notes
     if 'notes' in request.form:
         check_change('notes', request.form['notes'])
-    # ... add other fields as needed
 
-    # 2. Recalculate Risk (Automatic) [cite: 96]
-    # We use the updated patient object to generate new data dict
+    # 2. Recalculate Risk (Automatic)
     current_data = patient.to_dict()
     new_risk_result = calculate_risk(current_data)
     
@@ -219,7 +216,6 @@ def update_patient(id):
 @app.route('/patient/<int:id>')
 def patient_details(id):
     patient = Patient.query.get_or_404(id)
-    # Sort logs by newest first so the latest changes appear at the top
     logs = sorted(patient.logs, key=lambda x: x.timestamp, reverse=True)
     
     field_labels = {

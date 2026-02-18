@@ -19,14 +19,14 @@ class Patient(db.Model):
     temperature = db.Column(db.Float)
     respiratory_rate = db.Column(db.Integer)
     
-    # Storing lists as JSON strings because SQLite is simple
+    # Storing lists as JSON strings
     history = db.Column(db.Text, default="[]") 
     lab_issues = db.Column(db.Text, default="[]")
     er_visits = db.Column(db.Integer, default=0)
     
     # System Calculated Risk (Read-Only for Users)
     risk_score = db.Column(db.Integer, default=0)
-    risk_label = db.Column(db.String(20), default="LOW") # LOW, MEDIUM, HIGH
+    risk_label = db.Column(db.String(20), default="LOW")
     risk_notes = db.Column(db.Text, default="")
     
     # Clinical Notes
@@ -86,10 +86,10 @@ class AuditLog(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # What changed?
+
     field_changed = db.Column(db.String(50))
     old_value = db.Column(db.String(200))
     new_value = db.Column(db.String(200))
     
-    # Did the Risk Level change?
-    risk_change = db.Column(db.String(100)) # e.g. "LOW -> HIGH"
+ 
+    risk_change = db.Column(db.String(100))

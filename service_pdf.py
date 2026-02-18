@@ -34,36 +34,28 @@ def extract_data_from_pdf(filepath):
         return None
 
     # Extraction Rules
-    
-    # Name: Handle "Patient Name: ..." or just "Name: ..."
-    # Stop at newline, parenthesis (for age), or comma
     data['name'] = extract(r"(?:Patient )?Name[:\s]+([a-zA-Z ]+)(?:[\(\n,]|$)")
-    
-    # Age: Handle "Age: ..." or "(Age ...)"
     data['age'] = extract(r"(?:Age[:\s]+|\(Age[:\s]+)(\d+)", int)
     
     # Gender
     data['gender'] = extract(r"Gender[:\s]+(Male|Female|Other)")
     
-    # Vitals - Flexible spacing and separators
     # HR: Heart Rate or HR
     data['heart_rate'] = extract(r"(?:Heart Rate|HR)[:\s]+(\d+)", int)
     
     # BP: Systolic BP or BP xxx/yyy
-    # First try to find "BP 120/80" pattern
     bp_match = re.search(r"(?:BP|Blood Pressure)[:\s]+(\d+)/(\d+)", text, re.IGNORECASE)
     if bp_match:
         data['systolic_bp'] = int(bp_match.group(1))
         data['diastolic_bp'] = int(bp_match.group(2))
     else:
-        # Fallback to separate fields
         data['systolic_bp'] = extract(r"(?:Systolic BP|SBP)[:\s]+(\d+)", int)
         data['diastolic_bp'] = extract(r"(?:Diastolic BP|DBP)[:\s]+(\d+)", int)
     
     # SpO2
     data['spo2'] = extract(r"(?:SpO2|Saturation)[:\s]+(\d+)", int)
     
-    # Temperature: Temp or Temperature, handle "C" or "F" (assuming C for now based on example)
+    # Temperature: Temp or Temperature, handle "C" 
     data['temperature'] = extract(r"(?:Temperature|Temp)[:\s]+([\d\.]+)", float)
     
     # Respiratory Rate: Respiratory Rate or Resp
@@ -71,14 +63,9 @@ def extract_data_from_pdf(filepath):
     
     # History
     # Capture text after "History:" until next keyword or end of sentence/line
-    # Keywords often start with a dot or newline
     history_match = re.search(r"(?:Medical History|Clinical History|History)[:\s]+(.*?)(?:\n\.|Wait for it|$)", text, re.IGNORECASE | re.DOTALL)
     if history_match:
-        # User input has "History: Diabetes, COPD. 1 ER visit..."
-        # We want to capture until the period or newline? 
-        # Actually checking the user input: "History: Diabetes, COPD. 1 ER visit..."
-        # The history list is comma separated but might end with a period.
-        raw_hist = history_match.group(1).split('.')[0] # Take first sentence/part
+        raw_hist = history_match.group(1).split('.')[0]
         data['history'] = [h.strip() for h in raw_hist.split(',') if h.strip()]
         
     # Lab
